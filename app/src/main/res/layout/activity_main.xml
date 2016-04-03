@@ -14,9 +14,10 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Meme!"
+        android:drawableLeft="@mipmap/ic_m"
         android:id="@+id/button"
         android:onClick="newMeme"
-        android:layout_centerVertical="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_marginBottom="80dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>
