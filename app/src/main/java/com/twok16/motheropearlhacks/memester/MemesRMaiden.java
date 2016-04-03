@@ -86,33 +86,27 @@ public class MemesRMaiden extends Activity {
             paint.setColor(Color.WHITE);
             paint.setTextSize(60);
             paint.setTypeface(getTypeface());
-
+            System.out.println("text.length " + text.length());
+            System.out.println(text);
             try {
                 ExifInterface exif = new ExifInterface(fileName);
                 int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
                 if (orientation == 6) {
                     bitmap = rotateBitmap(bitmap, 90);
-                    if (text1.length() > 14 ) {
-                        text1 = text1.substring(0, 14);
-                        text2 = text1.substring(14, text1.length());
+/*                    if (text1.length() > 14 ) {
+                        text1 = text1.substring(0, text1.length() / 2);
+                        text2 = text1.substring(text1.length() / 2, text1.length());
                         canvas.drawBitmap(bitmap, 0, 0, null);
                         canvas.drawText(text1, 0, bitmap.getHeight() / 3, paint);
                         canvas.drawText(text2, 0, bitmap.getHeight(), paint);
                     } else if (text.length() < 14) {
                         canvas.drawBitmap(bitmap, 0, 0, null);
                         canvas.drawText(text, 0, bitmap.getHeight() / 3, paint);
-                    }
-                } else  {
-                    if (text.length() > 25) {
-                        text1 = text1.substring(0, 25);
-                        text2 = text1.substring(25, text1.length());
+                    } else {
                         canvas.drawBitmap(bitmap, 0, 0, null);
                         canvas.drawText(text1, 0, bitmap.getHeight() / 3, paint);
                         canvas.drawText(text2, 0, bitmap.getHeight(), paint);
-                    } else if (text.length() < 25) {
-                        canvas.drawBitmap(bitmap, 0, 0, null);
-                        canvas.drawText(text, 0, bitmap.getHeight() / 3, paint);
-                    }
+                    }*/
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -127,8 +121,10 @@ public class MemesRMaiden extends Activity {
                 canvas.drawText(text, 0, bitmap.getHeight() / 3, paint);
             }*/
 
-            saveBitmap(bm);
-
+            //saveBitmap(bm);
+            canvas.drawBitmap(bitmap, 0, 0, null);
+            canvas.drawText(text1, 0, bitmap.getHeight() / 3, paint);
+            canvas.drawText(text2, 0, bitmap.getHeight(), paint);
         }
 
         public void saveBitmap(View view, Bitmap bm) {
@@ -153,7 +149,7 @@ public class MemesRMaiden extends Activity {
             FileOutputStream out = null;
             try {
                 out = new FileOutputStream(dest);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 85, out); // bmp is your Bitmap instance
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out); // bmp is your Bitmap instance
                 // PNG is a lossless format, the compression factor (100) is ignored
             } catch (Exception e) {
                 e.printStackTrace();
