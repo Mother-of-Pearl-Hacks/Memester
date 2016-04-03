@@ -18,12 +18,17 @@ import java.util.Random;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.Manifest;
+import android.view.Window;
+import android.view.WindowManager;
+import android.app.Activity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     int MY_PERMISSIONS_REQUEST_READ_CONTACTS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
