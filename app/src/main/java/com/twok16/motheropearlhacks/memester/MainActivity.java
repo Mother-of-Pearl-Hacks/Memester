@@ -41,8 +41,10 @@ public class MainActivity extends AppCompatActivity {
     public void newMeme(View view) {
         File image = getImageFiles();
         List<String> texts = getAllSms();
+        String text = texts.get(getRandomIndex(texts.size()));
         Intent intent = new Intent(this, MemesRMaiden.class);
         intent.putExtra("imageFile", image.toString());
+        intent.putExtra("text", text);
         startActivity(intent);
     }
 
