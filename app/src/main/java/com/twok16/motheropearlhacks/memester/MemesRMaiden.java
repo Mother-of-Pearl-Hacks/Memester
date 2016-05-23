@@ -1,8 +1,12 @@
 package com.twok16.motheropearlhacks.memester;
 
 import android.app.Activity;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.View;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -50,6 +54,8 @@ public class MemesRMaiden extends Activity {
 
             File file = new File(meme.file_name);
             Bitmap bitmap = BitmapFactory.decodeFile(meme.file_name);
+            Point display_size = getScreenSize();
+            //bitmap = Bitmap.createScaledBitmap(bitmap, display_size.x, display_size.y, true);
 
             String[] texts = splitText(meme.message);
             String text1 = texts[0];
@@ -62,21 +68,30 @@ public class MemesRMaiden extends Activity {
             paint.setTypeface(getTypeface());
             System.out.println("text.length " + meme.message.length());
             System.out.println(meme.message);
-            try {
-                ExifInterface exif = new ExifInterface(meme.file_name);
-                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-                if (orientation == 6) {
-                    bitmap = rotateBitmap(bitmap, 90);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            canvas.drawBitmap(bitmap, 0, 0, null);
+
+            Rect init_rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+            Rect dest_rect = new Rect(0, 0, display_size.x, display_size.y);
+            //canvas.drawBitmap(bitmap, display_size.x, display_size.y, null);
+            canvas.drawBitmap(bitmap, init_rect, dest_rect, paint);
+
             canvas.drawText(text1, 0, bitmap.getHeight() / 3, paint);
             canvas.drawText(text2, 0, bitmap.getHeight(), paint);
         }
 
-        public Typeface getTypeface() {
+        // gets the size of the screen, returning it as a point
+        private Point getScreenSize() {
+            Display display = getWindowManager().getDefaultDisplay();
+            Point point = new Point();
+            display.getSize(point);
+            return point;
+        }
+
+        private Bitmap getBitmap(Bitmap bitmap) {
+            Point display_size = getScreenSize();
+            return Bitmap.createScaledBitmap(bitmap, display_size.x, display_size.y, true);
+        }
+
+        private Typeface getTypeface() {
 
             AssetManager am = this.getContext().getApplicationContext().getAssets();
 
@@ -84,14 +99,14 @@ public class MemesRMaiden extends Activity {
                     String.format(Locale.US, "fonts/%s", "Coda-Heavy.ttf"));
         }
 
-        public Bitmap rotateBitmap(Bitmap source, float angle)
+        private Bitmap rotateBitmap(Bitmap source, float angle)
         {
             Matrix matrix = new Matrix();
             matrix.postRotate(angle);
             return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
         }
 
-        protected String[] splitText(String text) {
+        private String[] splitText(String text) {
             String firstHalf = text.substring(0, text.length()/ 2);
             String secondHalf = text.substring(text.length()/2, text.length());
             String[] texts = new String[2];
