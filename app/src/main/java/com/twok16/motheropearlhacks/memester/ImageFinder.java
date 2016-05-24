@@ -11,7 +11,7 @@ import java.util.Random;
  */
 public class ImageFinder {
 
-    protected String getImage() {
+    protected String getImageFileName() {
 
         File path = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DCIM + "/Camera");

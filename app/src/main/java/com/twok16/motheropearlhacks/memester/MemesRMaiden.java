@@ -17,6 +17,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.content.res.AssetManager;
 
+import java.io.IOException;
 import java.util.Locale;
 import android.graphics.Matrix;
 import java.io.File;
@@ -49,13 +50,8 @@ public class MemesRMaiden extends Activity {
         @Override
         protected void onDraw(Canvas canvas) {
             this.setDrawingCacheEnabled(true);
-            Meme meme = makeMeme(); // make a new meme object to draw to canvas
-            Bitmap bm = null;
 
-            File file = new File(meme.file_name);
-            Bitmap bitmap = BitmapFactory.decodeFile(meme.file_name);
-            Point display_size = getScreenSize();
-            //bitmap = Bitmap.createScaledBitmap(bitmap, display_size.x, display_size.y, true);
+            Meme meme = makeMeme(); // make a new meme object to draw to canvas
 
             String[] texts = splitText(meme.message);
             String text1 = texts[0];
@@ -66,16 +62,64 @@ public class MemesRMaiden extends Activity {
             paint.setColor(Color.WHITE);
             paint.setTextSize(60);
             paint.setTypeface(getTypeface());
-            System.out.println("text.length " + meme.message.length());
-            System.out.println(meme.message);
 
-            Rect init_rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-            Rect dest_rect = new Rect(0, 0, display_size.x, display_size.y);
-            //canvas.drawBitmap(bitmap, display_size.x, display_size.y, null);
-            canvas.drawBitmap(bitmap, init_rect, dest_rect, paint);
+            try {
+                Bitmap bitmap = createBitmap(meme.image_file_name);
+                Point screen_size = getScreenSize();
+                // get the x and y values to center the image on the canvas
+                int y_position = getYPosition(screen_size.y, bitmap.getHeight());
+                int x_position = getXPosition(screen_size.x, bitmap.getWidth());
+                canvas.drawBitmap(bitmap, x_position, y_position, paint);
+            } catch (Exception e) { // if the bitmap throws an IOException... get a new Image!
+                e.printStackTrace();
+            }
+            //canvas.drawText(text1, 0, bitmap.getHeight() / 3, paint);
+            //canvas.drawText(text2, 0, bitmap.getHeight(), paint);
+        }
 
-            canvas.drawText(text1, 0, bitmap.getHeight() / 3, paint);
-            canvas.drawText(text2, 0, bitmap.getHeight(), paint);
+        // gets the desired y position to center the image on the canvas
+        private int getYPosition(int display_height, int image_height) {
+            return (display_height - image_height) / 2;
+        }
+
+        // gets the desired x position to center the image on the canvas
+        private int getXPosition(int display_width, int image_width) {
+            return (display_width - image_width) / 2;
+        }
+
+        //make a bitmap from an image file =
+        private Bitmap createBitmap(String file_name) throws IOException{
+            //Bitmap bitmap = BitmapFactory.decodeFile(file_name);
+            Point display_size = getScreenSize();
+
+            Bitmap bitmap = BitmapFactory.decodeFile(file_name, getSampleSize(display_size.x, file_name));
+
+            if (isHorizontal(file_name)) { // if the image is horizontal
+                bitmap = rotateBitmap(bitmap, 90); // rotate it by 90 degrees
+            }
+            return bitmap;
+        }
+
+        // checks if the image is bigger than the display size
+        // returns a the ratio between the image width and display width for resizing
+        // used this tutorial http://www.informit.com/articles/article.aspx?p=2143148&seqNum=2
+        private BitmapFactory.Options getSampleSize(int display_width, String file_name) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(file_name, options);
+            int width = options.outWidth;
+            if (width > display_width) {
+                int width_ratio = Math.round((float) width / (float) display_width);
+                options.inSampleSize = width_ratio;
+            }
+            options.inJustDecodeBounds = false;
+            return options;
+        }
+
+        // checks if an image is horizontal
+        private boolean isHorizontal(String file_name) throws IOException {
+            ExifInterface exif = new ExifInterface(file_name);
+            return exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1) == 6;
         }
 
         // gets the size of the screen, returning it as a point
@@ -84,11 +128,6 @@ public class MemesRMaiden extends Activity {
             Point point = new Point();
             display.getSize(point);
             return point;
-        }
-
-        private Bitmap getBitmap(Bitmap bitmap) {
-            Point display_size = getScreenSize();
-            return Bitmap.createScaledBitmap(bitmap, display_size.x, display_size.y, true);
         }
 
         private Typeface getTypeface() {
