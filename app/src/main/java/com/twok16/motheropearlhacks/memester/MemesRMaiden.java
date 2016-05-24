@@ -15,6 +15,8 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.content.res.AssetManager;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 import android.graphics.Matrix;
@@ -27,6 +29,7 @@ public class MemesRMaiden extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(new MemeView(this));
+        View addButton = this.findViewById(R.id.saveFAB);
         imageFinder = new ImageFinder();
         phraseFinder = new PhraseFinder(this);
     }
@@ -53,7 +56,7 @@ public class MemesRMaiden extends Activity {
             Paint paint = new Paint();
             canvas.drawPaint(paint);
             paint.setColor(Color.WHITE);
-            int text_size = 100;
+            int text_size = 115;
             paint.setTextSize(text_size);
             paint.setTypeface(getTypeface());
 
@@ -71,14 +74,36 @@ public class MemesRMaiden extends Activity {
                     String text1 = texts[0];
                     String text2 = texts[1];
                     font_size = getFontForTwo(paint, text1, text2, bitmap);
+                    System.out.println("font_size " + font_size);
                     paint.setTextSize(font_size);
-                    canvas.drawText(text1, x_position, bitmap.getHeight() / 9 + y_position, paint);
+                    System.out.println("bitmap width " + bitmap.getWidth() + " text1 width " + paint.measureText(text1) + " text2 width " + paint.measureText(text2));
+                    int y_offset;
+                    if (font_size >= 100) {
+                        y_offset = 8;
+                    } else {
+                        y_offset = 10;
+                    }
+                    canvas.drawText(text1, x_position, bitmap.getHeight() / y_offset + y_position, paint);
                     canvas.drawText(text2, x_position, bitmap.getHeight() + y_position - (bitmap.getWidth() / 15), paint);
                 } else {
-                    canvas.drawText(meme.message, x_position, bitmap.getHeight() / 9 + y_position, paint);
+                    int y_offset;
+                    if (font_size >= 100) {
+                        y_offset = 8;
+                    } else {
+                        y_offset = 10;
+                    }
+                    canvas.drawText(meme.message, x_position, bitmap.getHeight() / 8 + y_position, paint);
                 }
 
             } catch (Exception e) { // if the bitmap throws an IOException... get a new Image!
+                e.printStackTrace();
+            }
+        }
+
+        private void saveBitmap(Bitmap bitmap, File file) {
+            try {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -94,9 +119,9 @@ public class MemesRMaiden extends Activity {
         }
 
         private int getFontForTwo(Paint paint, String text1, String text2, Bitmap bitmap) {
-            int font_size = 100;
+            int font_size = 115;
+            paint.setTextSize(font_size);
             while (paint.measureText(text1) > bitmap.getWidth() || paint.measureText(text2) > bitmap.getWidth()) {
-                System.out.println("font size 2 " + font_size);
                 paint.setTextSize(font_size);
                 font_size -= 1;
             }
