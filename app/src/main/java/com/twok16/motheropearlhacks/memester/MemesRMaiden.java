@@ -1,9 +1,12 @@
 package com.twok16.motheropearlhacks.memester;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Point;
 import android.media.ExifInterface;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.view.Display;
 import android.view.View;
 import android.content.Context;
@@ -20,30 +23,59 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 import android.graphics.Matrix;
+import android.widget.Button;
 
 public class MemesRMaiden extends Activity {
-    private ImageFinder imageFinder;
-    private PhraseFinder phraseFinder;
+    private static ImageFinder imageFinder;
+    private static PhraseFinder phraseFinder;
+    private MemeView memeView;
+    protected static Display display;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new MemeView(this));
-        View addButton = this.findViewById(R.id.saveFAB);
+        setContentView(R.layout.activity_memes_rmaiden);
+
         imageFinder = new ImageFinder();
         phraseFinder = new PhraseFinder(this);
+
+        memeView = (MemeView) findViewById(R.id.meme_view);
+        display = getWindowManager().getDefaultDisplay();
+
+        final Button button = (Button) findViewById(R.id.save_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Perform action on click
+                new AlertDialog.Builder(v.getContext())
+                        .setTitle("Meme File Name")
+                        .setMessage("Name Your File")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // continue with delete
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .show();
+                //memeView.saveBitmap();
+            }
+        });
     }
 
     // creates a new Meme object from global ImageFinder and PhraseFinder objects
-    protected Meme makeMeme() {
+    protected static Meme makeMeme() {
         return new Meme(phraseFinder, imageFinder);
     }
 
 
-    public class MemeView extends View {
+    public static class MemeView extends View {
+        protected Bitmap meme_map;
 
-        public MemeView(Context context) {
-            super(context);
+        public MemeView(Context context, AttributeSet attrs) {
+            super(context, attrs);
             // TODO Auto-generated constructor stub
         }
 
@@ -94,15 +126,16 @@ public class MemesRMaiden extends Activity {
                     }
                     canvas.drawText(meme.message, x_position, bitmap.getHeight() / 8 + y_position, paint);
                 }
+                meme_map = bitmap;
 
             } catch (Exception e) { // if the bitmap throws an IOException... get a new Image!
                 e.printStackTrace();
             }
         }
 
-        private void saveBitmap(Bitmap bitmap, File file) {
+        public void saveBitmap() {
             try {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
+                //meme_map.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -173,7 +206,6 @@ public class MemesRMaiden extends Activity {
 
         // gets the size of the screen, returning it as a point
         private Point getScreenSize() {
-            Display display = getWindowManager().getDefaultDisplay();
             Point point = new Point();
             display.getSize(point);
             return point;
