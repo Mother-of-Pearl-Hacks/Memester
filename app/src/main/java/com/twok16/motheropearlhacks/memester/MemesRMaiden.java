@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.Locale;
 import android.graphics.Matrix;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 public class MemesRMaiden extends Activity {
     private static ImageFinder imageFinder;
@@ -42,24 +44,35 @@ public class MemesRMaiden extends Activity {
         memeView = (MemeView) findViewById(R.id.meme_view);
         display = getWindowManager().getDefaultDisplay();
 
+        // button to save a meme. opens a dialog box which prompts user to give a file name
+        // should alert them if it's a duplicate file... TODO:this
         final Button button = (Button) findViewById(R.id.save_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Perform action on click
-                new AlertDialog.Builder(v.getContext())
+
+                // using this stackoverflow article for alert dialog help:
+                // http://stackoverflow.com/questions/18799216/how-to-make-a-edittext-box-in-a-dialog
+                final EditText input = new EditText(v.getContext());
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(v.getContext())
                         .setTitle("Meme File Name")
                         .setMessage("Name Your File")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                // continue with delete
+                                String file_name = input.getText().toString();
                             }
                         })
                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 // do nothing
                             }
-                        })
-                        .show();
+                        });
+
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                input.setLayoutParams(lp);
+                alertDialog.setView(input); // uncomment this line
+                alertDialog.show();
                 //memeView.saveBitmap();
             }
         });
@@ -141,6 +154,7 @@ public class MemesRMaiden extends Activity {
             }
         }
 
+        // when the meme only has one string, find the largest font size that fits on the image
         private int getFontSize(Paint paint, String text, Bitmap bitmap) {
             int font_size = 100;
             while (paint.measureText(text) > bitmap.getWidth()) {
@@ -151,6 +165,7 @@ public class MemesRMaiden extends Activity {
             return font_size;
         }
 
+        // when the meme's texts are split, find the largest font size that fits on the image
         private int getFontForTwo(Paint paint, String text1, String text2, Bitmap bitmap) {
             int font_size = 115;
             paint.setTextSize(font_size);
